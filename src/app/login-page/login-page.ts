@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from './auth.service';
+import { TelemetryService } from './../telemetry.service';
 
 @Component({
   selector: 'app-login',
@@ -16,12 +17,14 @@ export class LoginComponent {
   private fb: FormBuilder = inject(FormBuilder);
   private changeRef: ChangeDetectorRef = inject(ChangeDetectorRef);
   private authService: AuthService = inject(AuthService);
+  private telemetry = inject(TelemetryService);
   errorMsg = signal<string>('');
   successMsg = signal<string>('');
   constructor() { }
 
   ngOnInit() {
     this.buildForm();
+    this.telemetry.trace('LoginPageLoaded');
     this.loginForm.markAsPristine();
     this.changeRef.detectChanges();
   }
@@ -41,16 +44,33 @@ export class LoginComponent {
 
   onSubmit() {
 
-    if (this.loginForm.valid) {
-      const payload = this.loginForm.value;
-      this.authService.login(payload).subscribe({
-        next: (res) => {
-          this.successMsg.set('Login Successful ✅')
-        },
-        error: (err) => {
-          this.errorMsg.set(err.error?.error || 'Login Failed ❌');
-        }
-      })
+    this.telemetry.trace('LoginSubmitClicked');
+
+    if (this.loginForm.invalid) {
+
+      // 📍 Telemetry: Validation failure
+      this.telemetry.trace('LoginValidationFailed', {
+        emailInvalid: this.loginForm.controls['email'].invalid,
+        passwordInvalid: this.loginForm.controls['password'].invalid
+      });
+
+      return;
     }
+
+    // if (this.loginForm.valid) {
+    const payload = this.loginForm.value;
+    this.authService.login(payload).subscribe({
+      next: (res) => {
+        this.successMsg.set('Login Successful ✅')
+      },
+      error: (err) => {
+        this.telemetry.trace('LoginFailure', {
+          status: err.status,
+          message: err.error?.error
+        });
+        this.errorMsg.set(err.error?.error || 'Login Failed ❌');
+      }
+    })
+    // }
   }
 }
