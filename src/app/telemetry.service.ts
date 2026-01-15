@@ -10,6 +10,7 @@ export interface TelemetryEvent {
   providedIn: 'root'
 })
 export class TelemetryService {
+  traceId: any;
 
   /**
    * Trace any custom or system event
@@ -71,24 +72,22 @@ export class TelemetryService {
       console.groupEnd();
       return;
     }
-
-    // 🚀 PROD MODE
-    // Example integrations:
-    // Application Insights
-    // Sentry
-    // Datadog
-    // New Relic
-
-    // Example pseudo-code:
-    // appInsights.trackEvent(payload);
-    // sentry.captureMessage(payload);
-
   }
 
-  /**
-   * Detect environment
-   */
+  //  Detect environment
   private isProduction(): boolean {
     return false; // replace with environment.production
   }
+
+ public getTraceId(): string {
+    if (!this.traceId) {
+      this.traceId = crypto.randomUUID(); // ✅ Standard UUID v4
+    }
+    return this.traceId;
+  }
+
+  public resetTraceId(): void {
+    this.traceId = null;
+  }
+
 }

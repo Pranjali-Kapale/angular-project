@@ -59,6 +59,7 @@ export class LoginComponent {
 
     // if (this.loginForm.valid) {
     const payload = this.loginForm.value;
+    this.telemetry.resetTraceId();
     this.authService.login(payload).subscribe({
       next: (res) => {
         this.successMsg.set('Login Successful ✅')
