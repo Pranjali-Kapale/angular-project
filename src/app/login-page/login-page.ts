@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from './auth.service';
 import { TelemetryService } from './../telemetry.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -17,6 +18,7 @@ export class LoginComponent {
   private fb: FormBuilder = inject(FormBuilder);
   private changeRef: ChangeDetectorRef = inject(ChangeDetectorRef);
   private authService: AuthService = inject(AuthService);
+  private router = inject(Router);
   private telemetry = inject(TelemetryService);
   errorMsg = signal<string>('');
   successMsg = signal<string>('');
@@ -62,7 +64,8 @@ export class LoginComponent {
     this.telemetry.resetTraceId();
     this.authService.login(payload).subscribe({
       next: (res) => {
-        this.successMsg.set('Login Successful ✅')
+        this.successMsg.set('Login Successful ✅');
+        this.router.navigate(['/admin']);
       },
       error: (err) => {
         this.telemetry.trace('LoginFailure', {

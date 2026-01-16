@@ -3,7 +3,7 @@ import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptors, withInterceptor
 
 import { App } from './app/app';
 import { appConfig } from './app/app.config';
-import { TelemetryInterceptor } from './app/telemetry.interceptor';
+import { TelemetryInterceptor } from './app/http.interceptor';
 
 bootstrapApplication(App, {
   ...appConfig,

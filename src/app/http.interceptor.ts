@@ -11,7 +11,7 @@ import { TelemetryService } from './telemetry.service';
 
 @Injectable()
 export class TelemetryInterceptor implements HttpInterceptor {
-  constructor(private telemetry: TelemetryService) {}
+  constructor(private telemetry: TelemetryService) { }
   intercept(
     req: HttpRequest<any>,
     next: HttpHandler
@@ -19,13 +19,12 @@ export class TelemetryInterceptor implements HttpInterceptor {
 
     const startTime = performance.now();
     const traceId = this.telemetry.getTraceId();
-
     // 🔹 ADD TELEMETRY DATA TO HEADERS
     const tracedRequest = req.clone({
       setHeaders: {
         'X-Trace-Id': traceId,
         'X-Client-Time': new Date().toISOString(),
-        'X-Client-App': 'Angular-Web'
+        'X-Client-App': 'Angular-Web',
       }
     });
     return next.handle(tracedRequest).pipe(
@@ -36,7 +35,7 @@ export class TelemetryInterceptor implements HttpInterceptor {
             url: req.url,
             method: req.method,
             durationMs: duration,
-            tracerId: traceId
+            tracerId: traceId,
           });
         },
         error: (error: HttpErrorResponse) => {
@@ -47,7 +46,7 @@ export class TelemetryInterceptor implements HttpInterceptor {
             method: req.method,
             status: error.status,
             durationMs: duration,
-            tracerId:traceId
+            tracerId: traceId,
           });
 
           this.telemetry.traceError(error, 'HTTP_API_ERROR');
